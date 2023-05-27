@@ -5,6 +5,8 @@ import com.netflix.netflixapi.jwtutils.JwtRequestModel;
 import com.netflix.netflixapi.jwtutils.JwtResponseModel;
 import com.netflix.netflixapi.jwtutils.JwtUserDetailsService;
 import com.netflix.netflixapi.jwtutils.TokenManager;
+import com.netflix.netflixapi.models.Utilisateur;
+import com.netflix.netflixapi.services.Utilitaire;
 import com.netflix.netflixapi.services.security.UtilisateurService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +31,8 @@ public class AuthenticationController {
     private TokenManager tokenManager;
     @Autowired
     private UtilisateurService utilisateurService;
+    @Autowired
+    private Utilitaire utilitaire;
 
     @PostMapping("/api/login")
     public ResponseEntity<?> createToken(@RequestBody JwtRequestModel request) throws Exception {
@@ -48,5 +52,15 @@ public class AuthenticationController {
         return ResponseEntity.ok(new JwtResponseModel(jwtToken));
     }
 
+    @GetMapping("/api/connected-user")
+    public MappingJacksonValue connectedUser() {
+        try {
+            Utilisateur utilisateur = utilisateurService.connectedUser();
+            return utilitaire.getFilter(utilisateur, "passwordFilter", "password");
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
 
 }
